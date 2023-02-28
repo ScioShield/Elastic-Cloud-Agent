@@ -1,0 +1,18 @@
+curl -XPOST \
+  --header "Authorization: ApiKey $(cat api_keys.txt)" \
+  -o WPid.txt \
+  --url "https://first-test-deployment-ghost-2023.kb.eu-west-1.aws.found.io:9243/api/fleet/agent_policies?sys_monitoring=true" \
+  --header "Accept: */*" \
+  --header "Cache-Control: no-cache" \
+  --header "Connection: keep-alive" \
+  --header "Content-Type: application/json" \
+  --header "kbn-xsrf: reporting" \
+  --data '{
+  "name": "Windows",
+  "description": "",
+  "namespace": "default",
+  "monitoring_enabled": [
+    "logs",
+    "metrics"
+  ]
+}'
