@@ -29,7 +29,98 @@ Expand-Archive /tmp/Sysmon.zip -DestinationPath "$archiveOutputPathElasticAgent"
 
 #Invoke-RestMethod -UseBasicParsing -Method Get -uri "$kibana/api/fleet/agent_policies" -Headers @{"Accept" = "application/json"; "Authorization" = "ApiKey $apiKey"}
 $fleetAgentPolicies = Invoke-RestMethod -UseBasicParsing -Method Get -uri "$kibana/api/fleet/agent_policies" -Headers @{"Accept" = "application/json"; "Authorization" = "ApiKey $apiKey"}
-Write-Host $fleetAgentPolicies.items
+#Write-Host $fleetAgentPolicies.items
+
+$header = @{
+    "Accept" = "application/json"
+    "Authorization" = "ApiKey $apiKey"
+    "Cache-Control" = "no-cache"
+    "Connection" = "keep-alive"
+    "kbn-xsrf" = "reporting"
+    } 
+
+# Add Windwows Policy
+
+function Send-KibanaRequestWindowsPolicy {
+    $json = Get-Content ./windowsPolicy.json -Raw
+    
+    Invoke-RestMethod -Uri "$kibana/api/fleet/agent_policies?sys_monitoring=true" `
+      -OutFile "windowsPolicyId.txt" `
+      -UseBasicParsing `
+      -Method Post `
+      -ContentType "application/json" `
+      -Headers $header `
+      -Body $json
+}
+
+Send-KibanaRequestWindowsPolicy
+
+# Add Linux Policy
+
+function Send-KibanaRequestLinuxPolicy {
+    $json = Get-Content ./linuxPolicy.json
+    
+    Invoke-RestMethod -Uri "$kibana/api/fleet/agent_policies?sys_monitoring=true" `
+      -OutFile "linuxPolicyId.txt" `
+      -UseBasicParsing `
+      -Method Post `
+      -ContentType "application/json" `
+      -Headers $header `
+      -Body $json
+}
+Send-KibanaRequestLinuxPolicy
+
+function Send-KibanaRequestWindowsIntegration {
+    $obj = Get-Content ./WPid.txt | ConvertFrom-Json
+    $json = (get-content ./windowsIntegration.json) -replace 'varWindowsPolicyId',$obj.item.id
+    
+    Invoke-RestMethod -Uri "$kibana/api/fleet/package_policies" `
+      -OutFile "windowsIntegration.txt" `
+      -UseBasicParsing `
+      -Method Post `
+      -ContentType "application/json" `
+      -Headers $header `
+      -Body $json
+}
+
+Send-KibanaRequestWindowsIntegration
+
+function Send-KibanaRequestWindowsDefenderIntegration {
+    $obj = Get-Content ./WPid.txt | ConvertFrom-Json
+    $json = (get-content ./windowsIntegrationDefender.json) -replace 'varWindowsPolicyId',$obj.item.id
+    
+    Invoke-RestMethod -Uri "$kibana/api/fleet/package_policies" `
+      -OutFile "windowsIntegrationDefender.txt" `
+      -UseBasicParsing `
+      -Method Post `
+      -ContentType "application/json" `
+      -Headers $header `
+      -Body $json
+}
+
+Send-KibanaRequestWindowsDefenderIntegration
+
+function Send-KibanaRequestLinuxIntegration {
+    $obj = Get-Content ./LPid.txt | ConvertFrom-Json
+    $json = (get-content ./linuxIntegration.json) -replace 'varLinuxPolicyId',$obj.item.id
+    
+    Invoke-RestMethod -Uri "$kibana/api/fleet/package_policies" `
+      -OutFile "linuxIntegration.txt" `
+      -UseBasicParsing `
+      -Method Post `
+      -ContentType "application/json" `
+      -Headers $header `
+      -Body $json
+}
+
+Send-KibanaRequestLinuxIntegration
+
+# Get the Intigration keys for both Linux and Windows
+$fleetAgentEnrollmentApiKeys = Invoke-RestMethod -UseBasicParsing -Method Get -uri "$kibana/api/fleet/enrollment_api_keys" -Headers @{"Accept" = "application/json"; "Authorization" = "ApiKey $apiKey"}
+
+# Get the policy details 
+$windowsPolicy = Get-Content ./windowsPolicyId.txt | ConvertFrom-Json
+$linuxPolicy = Get-Content ./linuxPolicyId.txt | ConvertFrom-Json
 
 
 # to be done last
