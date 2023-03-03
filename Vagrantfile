@@ -3,6 +3,7 @@ config.vm.define "windows" do |windows|
     windows.vm.box = "gusztavvargadr/windows-10-21h2-enterprise"
     windows.vm.hostname = 'windows-agent-8-6'
     windows.vm.box_url = "gusztavvargadr/windows-10-21h2-enterprise"
+    windows.vm.provision :shell, privileged: "true", path: "ESBootstrap.ps1"
     windows.vm.network :private_network, ip: "10.0.0.30"
     windows.vm.provider :virtualbox do |v|
      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
