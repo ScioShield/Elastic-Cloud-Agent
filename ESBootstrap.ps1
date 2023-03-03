@@ -40,7 +40,6 @@ $header = @{
     } 
 
 # Add Windwows Policy
-
 function Send-KibanaRequestWindowsPolicy {
     $json = Get-Content ./windowsPolicy.json -Raw
     
