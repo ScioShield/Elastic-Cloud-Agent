@@ -1,3 +1,4 @@
+/.vagrant/*
 endpoints.txt
 api_key.txt
 linuxIntegration.txt
