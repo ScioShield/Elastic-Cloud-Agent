@@ -2,6 +2,7 @@
 Create two .txt files in the folder  
 1) api_key.txt should contain your cloud user API key  
 2) endpoints.txt should contian all required endpoints from the cloud console  
+
 Example:  
 api_key.txt  
 MmIwMDA0MmY3NDgxYzdiMDU2YzRiNDEwZDI4ZjMzY2YgLQo=  
